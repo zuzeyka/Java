@@ -1,7 +1,39 @@
 package step.learning.OOP;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Objects;
+
 public class OOPDemo {
     public void run(){
+        // JSON - средствами Gson
+        Gson gson = new Gson();
+        String str = "{\"author\": \"D. Knuth\", \"title\": \"Art of programming\"}";
+        Book book = gson.fromJson(str, Book.class); // typeof
+        System.out.println(book.getCard());
+        System.out.println(gson.toJson(book));
+        book.setAuthor(null);
+        System.out.println(gson.toJson(book));
+
+        Gson gson2 = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+        System.out.println(gson2.toJson(book));
+
+        try (
+                InputStream bookStream = this.getClass().getClassLoader().getResourceAsStream("book.json");
+                InputStreamReader bookReader = new InputStreamReader(Objects.requireNonNull(bookStream));
+                ){
+            book = gson.fromJson(bookReader, Book.class);
+            System.out.println(book.getCard());
+        }
+        catch (IOException ex){
+            System.err.println(ex.getMessage());
+        }
+    }
+    public void run1(){
         Library library = new Library() ;
         try {
             library.add(new Book("D. Knuth", "Art of programming", 255));

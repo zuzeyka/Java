@@ -16,12 +16,14 @@ public class App
         //new BasicsDemo().run();
         //new FilesDemo().run();
         //Explover.ls("./");
+        /*
         Scanner kbscaner = new Scanner(System.in);
         System.out.print("Type min length: ");
         int minLength = Integer.parseInt(kbscaner.next()); // Минимальная длина строки
         System.out.print("Type min length: ");
         int maxLength = Integer.parseInt(kbscaner.next()); // Максимальная длина строки
         System.out.println(RandomString.generateString(minLength, maxLength));
+        */
         new OOPDemo().run();
     }
 }
