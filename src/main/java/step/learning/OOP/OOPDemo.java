@@ -2,35 +2,91 @@ package step.learning.OOP;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.util.Objects;
 
 public class OOPDemo {
     public void run(){
-        // JSON - средствами Gson
-        Gson gson = new Gson();
-        String str = "{\"author\": \"D. Knuth\", \"title\": \"Art of programming\"}";
-        Book book = gson.fromJson(str, Book.class); // typeof
-        System.out.println(book.getCard());
-        System.out.println(gson.toJson(book));
-        book.setAuthor(null);
-        System.out.println(gson.toJson(book));
-
-        Gson gson2 = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-        System.out.println(gson2.toJson(book));
-
-        try (
-                InputStream bookStream = this.getClass().getClassLoader().getResourceAsStream("book.json");
-                InputStreamReader bookReader = new InputStreamReader(Objects.requireNonNull(bookStream));
-                ){
-            book = gson.fromJson(bookReader, Book.class);
-            System.out.println(book.getCard());
+        Library library = new Library();
+        try {
+            library.load();
         }
-        catch (IOException ex){
+        catch (RuntimeException ex){
             System.err.println(ex.getMessage());
+        }
+        library.printAllCards();
+    }
+    public void run3() {
+
+        // JSON - засобами Gson у задачі фабричного типу
+        // уявимо, що ми не знаємо тип (книга, газета,...) до того як парсимо рядок
+        String str = "{\"author\": \"D. Knuth\", \"title\": \"Art of programming\" }" ;
+        // узагальнений парсер - створює JsonObject як ~Map<K,V>
+        JsonObject literatureObject = JsonParser.parseString( str ).getAsJsonObject() ;
+        Literature literature;
+        if( literatureObject.has( "author" ) ) {
+            literature = new Book(
+                    literatureObject.get("title").getAsString(),
+                    literatureObject.get("author").getAsString()
+            );
+        }
+        if( literatureObject.has( "number" ) ) {
+            literature = new Journal(
+                    literatureObject.get("title").getAsString(),
+                    literatureObject.get("number").getAsInt()
+            );
+        }
+        if( literatureObject.has( "date" ) ) {
+
+            try {
+                literature = new Newspaper(
+                        literatureObject.get("title").getAsString(),
+                        literatureObject.get("date").getAsString()
+                );
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+    public void run2() {
+        // JSON - засобами Gson з відомим типом об'єкту
+        Gson gson = new Gson() ;
+        String str = "{\"author\": \"D. Knuth\", \"title\": \"Art of programming\" }" ;
+        Book book = gson.fromJson( str, Book.class ) ;  // ~ typeof
+        System.out.println( book.getCard() ) ;
+        // оптимізований рядок - з мінімальною кількістю символів
+        System.out.println( gson.toJson( book ) ) ;  // {"author":"D. Knuth","title":"Art of programming"}
+        // В оптимізованому режимі поля зі значенням null взагалі не включаються до json
+        book.setAuthor( null ) ;
+        System.out.println( gson.toJson( book ) ) ;  // {"title":"Art of programming"}
+
+        // Для налаштувань серіалізатора використовується GsonBuilder
+        Gson gson2 = new GsonBuilder()
+                .setPrettyPrinting()   // додаткові відступи та розриви
+                .serializeNulls()      // включати до json поля з null
+                .create();
+        System.out.println( gson2.toJson( book ) ) ;
+
+        try(
+                InputStream bookStream =                            // Одержуємо доступ до ресурсу
+                        this.getClass()                             // Оскільки файл копіюється до папки
+                                .getClassLoader()                       // з класами, знаходимо її через getClassLoader
+                                .getResourceAsStream("book.json");
+                InputStreamReader bookReader =                      // Для використання gson.fromJson
+                        new InputStreamReader(                      // необхідний Reader, відповідно
+                                Objects.requireNonNull( bookStream ) )      // створюємо InputStreamReader
+        ) {
+            book = gson.fromJson( bookReader, Book.class ) ;
+            System.out.println( book.getCard() ) ;
+        }
+        catch( IOException ex ) {
+            System.err.println( ex.getMessage() ) ;
         }
     }
     public void run1(){
@@ -42,7 +98,8 @@ public class OOPDemo {
             library.add(new Book("Richter", "Platform .NET", 333));
             library.add(new Newspaper("Washington Post", "2023-09-25"));
             library.add(new Journal("Amogus Spawning", 32, 26));
-
+            library.add(new Hologram("Elder Scroll", "Very old scroll", "1011-09-25"));
+            library.save();
         }
         catch (Exception ex){
             System.err.println("Literature creation error: " + ex.getMessage());

@@ -24,6 +24,10 @@ public class App
         int maxLength = Integer.parseInt(kbscaner.next()); // Максимальная длина строки
         System.out.println(RandomString.generateString(minLength, maxLength));
         */
-        new OOPDemo().run();
+        OOPDemo demo = new OOPDemo();
+        //demo.run2();
+        //demo.run1();
+        //demo.run3();
+        demo.run();
     }
 }

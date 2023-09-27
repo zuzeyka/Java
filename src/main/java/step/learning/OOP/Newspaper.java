@@ -1,11 +1,13 @@
 package step.learning.OOP;
 
+import com.google.gson.JsonObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.SimpleTimeZone;
 
-public class Newspaper extends Literature implements Periodic, Printable, Hologram{
+@Serializable
+public class Newspaper extends Literature implements Periodic, Printable {
     private Date date;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     @Override
@@ -14,6 +16,32 @@ public class Newspaper extends Literature implements Periodic, Printable, Hologr
                 "Newspaper: '%s' from %s",
                 super.getTitle(),
                 dateFormat.format(this.getDate())
+        );
+    }
+
+    @ParseChecker
+    public static boolean isParseableFromJson(JsonObject jsonObject){
+        String[] requiredFields = {"title", "date"};
+        for (String field : requiredFields){
+            if(!jsonObject.has(field)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @FromJsonParser
+    public static Newspaper fromJson(JsonObject jsonObject) throws ParseException{
+        String[] requiredFields = {"title", "date"};
+        for (String field : requiredFields){
+            if(!jsonObject.has(field)){
+                throw new ParseException("Missing required field: " + field, 0);
+            }
+        }
+
+        return new Newspaper(
+                jsonObject.get(requiredFields[0]).getAsString(),
+                jsonObject.get(requiredFields[1]).getAsString()
         );
     }
 
