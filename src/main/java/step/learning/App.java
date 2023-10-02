@@ -1,10 +1,14 @@
 package step.learning;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import step.learning.OOP.OOPDemo;
 import step.learning.basics.BasicsDemo;
 import step.learning.basics.FilesDemo;
 import step.learning.homework.code.Explover;
 import step.learning.homework.code.RandomString;
+import step.learning.ioc.ConfigModule;
+import step.learning.ioc.IocDemo;
 
 import java.util.Scanner;
 
@@ -24,10 +28,13 @@ public class App
         int maxLength = Integer.parseInt(kbscaner.next()); // Максимальная длина строки
         System.out.println(RandomString.generateString(minLength, maxLength));
         */
-        OOPDemo demo = new OOPDemo();
+        //OOPDemo demo = new OOPDemo();
         //demo.run2();
         //demo.run1();
         //demo.run3();
-        demo.run();
+        //demo.run();
+        Injector injector = Guice.createInjector(new ConfigModule());
+        IocDemo iocDemo = injector.getInstance(IocDemo.class); // вместо new IocDemo();
+        iocDemo.run();
     }
 }

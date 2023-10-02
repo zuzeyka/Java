@@ -2,7 +2,12 @@ package step.learning.OOP;
 
 import com.google.gson.JsonObject;
 
+import java.lang.reflect.Field;
 import java.text.ParseException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Serializable
 public class Journal extends Literature implements Copyable, Periodic, Printable, Multiple {
@@ -18,10 +23,21 @@ public class Journal extends Literature implements Copyable, Periodic, Printable
         super.setTitle(title);
     }
 
+    public static List<String> getRequiredFieldsNames() {
+        if (requiredFieldsNames == null){
+            Field[] fields = Book.class.getDeclaredFields(); // .getFields(); - пустая коллекция
+            Field[] fields2 = Book.class.getSuperclass().getDeclaredFields();
+            requiredFieldsNames = Stream.concat(Arrays.stream(fields), Arrays.stream(fields2)).filter(field -> field.isAnnotationPresent(Required.class)).map(Field::getName).collect(Collectors.toList());
+        }
+        return requiredFieldsNames;
+    }
+
+    private static List<String> requiredFieldsNames;
+
     @ParseChecker
     public static boolean isParseableFromJson(JsonObject jsonObject){
-        String[] requiredFields = {"title", "number"};
-        for (String field : requiredFields){
+        // String[] requiredFields = {"title", "number"};
+        for (String field : getRequiredFieldsNames()){
             if(!jsonObject.has(field)){
                 return false;
             }
@@ -32,7 +48,7 @@ public class Journal extends Literature implements Copyable, Periodic, Printable
     @FromJsonParser
     public static Journal fromJson(JsonObject jsonObject) throws ParseException {
         String[] requiredFields = {"title", "number"};
-        for (String field : requiredFields){
+        for (String field : getRequiredFieldsNames()){
             if(!jsonObject.has(field)){
                 throw new ParseException("Missing required field: " + field, 0);
             }

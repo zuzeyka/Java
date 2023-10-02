@@ -2,7 +2,13 @@ package step.learning.OOP;
 
 import com.google.gson.JsonObject;
 
+import java.lang.reflect.Field;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Serializable
 public class Book extends Literature implements Copyable, Printable, Multiple{
@@ -17,7 +23,19 @@ public class Book extends Literature implements Copyable, Printable, Multiple{
         this.count = 1;
         super.setTitle(title);
     }
+
+    public static List<String> getRequiredFieldsNames() {
+        if (requiredFieldsNames == null){
+            Field[] fields = Book.class.getDeclaredFields(); // .getFields(); - пустая коллекция
+            Field[] fields2 = Book.class.getSuperclass().getDeclaredFields();
+            requiredFieldsNames = Stream.concat(Arrays.stream(fields), Arrays.stream(fields2)).filter(field -> field.isAnnotationPresent(Required.class)).map(Field::getName).collect(Collectors.toList());
+        }
+        return requiredFieldsNames;
+    }
+
+    private static List<String> requiredFieldsNames;
     private int count;
+    @Required
     private String author;
 
     public String getAuthor() {
@@ -45,8 +63,10 @@ public class Book extends Literature implements Copyable, Printable, Multiple{
 
     @ParseChecker
     public static boolean isParseableFromJson(JsonObject jsonObject){
-        String[] requiredFields = {"author", "title"};
-        for (String field : requiredFields){
+        // String[] requiredFields = {"author", "title"};
+
+
+        for (String field : getRequiredFieldsNames()){
             if(!jsonObject.has(field)){
                 return false;
             }
