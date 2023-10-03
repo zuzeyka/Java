@@ -1,9 +1,12 @@
 package step.learning.ioc.service.hash;
 
+import com.google.inject.Singleton;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+//@Singleton
 public class SHA256 implements HashService{
 
     @Override

@@ -3,6 +3,7 @@ package step.learning;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import step.learning.OOP.OOPDemo;
+import step.learning.async.AsyncDemo;
 import step.learning.basics.BasicsDemo;
 import step.learning.basics.FilesDemo;
 import step.learning.homework.code.Explover;
@@ -33,8 +34,9 @@ public class App
         //demo.run1();
         //demo.run3();
         //demo.run();
-        Injector injector = Guice.createInjector(new ConfigModule());
-        IocDemo iocDemo = injector.getInstance(IocDemo.class); // вместо new IocDemo();
-        iocDemo.run();
+        //Injector injector = Guice.createInjector(new ConfigModule());
+        //IocDemo iocDemo = injector.getInstance(IocDemo.class); // вместо new IocDemo();
+        //iocDemo.run();
+        Guice.createInjector(new ConfigModule()).getInstance(AsyncDemo.class).run();
     }
 }
